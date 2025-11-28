@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сотрудники - Автосалон</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-car"></i> Автосалон
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-user-tie"></i> Управление сотрудниками</h1>
+        <a th:href="@{/}" class="btn btn-outline-secondary">
+            <i class="fas fa-home"></i> На главную
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <a th:href="@{/employees/add}" class="btn btn-success">
+                        <i class="fas fa-user-plus"></i> Добавить сотрудника
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <form th:action="@{/employees/search}" method="get" class="d-flex">
+                        <input type="text" name="keyword" class="form-control"
+                               placeholder="Поиск по ФИО..." th:value="${keyword}">
+                        <button type="submit" class="btn btn-outline-primary ms-2">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <a th:href="@{/employees}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Всего сотрудников: </strong>
+                        <span th:text="${employees.size()}">0</span>
+                        <span th:if="${keyword}" th:text="' (найдено по запросу: &quot;' + keyword + '&quot;)'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Дата рождения</th>
+                        <th>Возраст</th>
+                        <th>Дата приема</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="employee : ${employees}">
+                        <td>
+                            <strong th:text="${employee.employeeId}"></strong>
+                        </td>
+                        <td>
+                            <strong th:text="${employee.fullName}"></strong>
+                        </td>
+                        <td>
+                            <i class="fas fa-phone text-muted"></i>
+                            <span th:text="${employee.phoneNumber}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(employee.birthDate, 'dd.MM.yyyy')}"></td>
+                        <td>
+                                    <span class="badge bg-info"
+                                          th:text="${T(java.time.Period).between(employee.birthDate, T(java.time.LocalDate).now()).getYears()} + ' лет'">
+                                    </span>
+                        </td>
+                        <td th:text="${#temporals.format(employee.createdAt, 'dd.MM.yyyy')}"></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/employees/edit/{id}(id=${employee.employeeId})}"
+                                   class="btn btn-warning btn-sm" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/employees/delete/{id}(id=${employee.employeeId})}"
+                                   class="btn btn-danger btn-sm" title="Удалить"
+                                   onclick="return confirm('Удалить сотрудника ' + $(this).closest('tr').find('td:eq(1)').text() + '?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${employees.empty}">
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-user-slash fa-2x mb-2"></i><br>
+                            <th:block th:if="${keyword}">
+                                Сотрудники по запросу "<span th:text="${keyword}"></span>" не найдены
+                            </th:block>
+                            <th:block th:unless="${keyword}">
+                                Сотрудники не найдены
+                            </th:block>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о правах доступа -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Информация</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-shield-alt text-primary"></i> Права доступа:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Просмотр клиентов и заказов</li>
+                        <li><i class="fas fa-check text-success"></i> Создание новых заказов</li>
+                        <li><i class="fas fa-check text-success"></i> Управление каталогом автомобилей</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-exclamation-triangle text-warning"></i> Ограничения:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-times text-danger"></i> Удаление других сотрудников</li>
+                        <li><i class="fas fa-times text-danger"></i> Изменение системных настроек</li>
+                        <li><i class="fas fa-times text-danger"></i> Просмотр финансовой отчетности</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>

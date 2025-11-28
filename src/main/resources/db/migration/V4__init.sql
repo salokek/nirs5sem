@@ -1,0 +1,1 @@
+ALTER TABLE warehouse DROP COLUMN "quantity";

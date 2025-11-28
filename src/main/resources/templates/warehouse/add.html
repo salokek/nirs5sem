@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить на склад - Автосалон</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-car"></i> Автосалон
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-box-open"></i> Добавить автомобиль на склад</h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/warehouse/add}" th:object="${warehouseItem}" method="post">
+                        <div class="mb-3">
+                            <label for="product" class="form-label">Автомобиль *</label>
+                            <select class="form-select" id="product" th:field="*{product}" required>
+                                <option value="">Выберите автомобиль</option>
+                                <option th:each="product : ${products}"
+                                        th:value="${product.productId}"
+                                        th:text="${product.name + ' (' + product.category + ')'}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Количество *</label>
+                            <input type="number" class="form-control" id="quantity"
+                                   th:field="*{quantity}" min="1" value="1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="delivery" class="form-label">Поставка *</label>
+                            <select class="form-select" id="delivery" th:field="*{delivery}" required>
+                                <option value="">Выберите поставку</option>
+                                <option th:each="delivery : ${deliveries}"
+                                        th:value="${delivery.deliveryId}"
+                                        th:text="'Поставка #' + ${delivery.deliveryId} + ' от ' + ${#temporals.format(delivery.deliveryDate, 'dd.MM.yyyy')}">
+                                </option>
+                            </select>
+                            <div class="form-text">
+                                Если нет подходящей поставки,
+                                <a th:href="@{/deliveries/add}">создайте новую поставку</a>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Добавить на склад
+                            </button>
+                            <a th:href="@{/warehouse}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Склад - Автосалон</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-car"></i> Автосалон
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-warehouse"></i> Управление складом</h1>
+        <div>
+            <!--a th:href="@{/warehouse/available}" class="btn btn-info me-2">
+                <i class="fas fa-boxes"></i> В наличии
+            </a-->
+            <a th:href="@{/}" class="btn btn-outline-secondary">
+                <i class="fas fa-home"></i> На главную
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <a th:href="@{/warehouse/add}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Добавить на склад
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Общее количество автомобилей на складе: </strong>
+                        <span th:text="${warehouseItems.size()}">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID записи</th>
+                        <th>Товар</th>
+                        <th>Категория</th>
+                        <th>Закупочная цена</th>
+                        <th>Цена продажи</th>
+                        <th>Количество</th>
+                        <th>Поставка</th>
+                        <th>Добавлен</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${warehouseItems}">
+                        <td th:text="${item.recordId}"></td>
+                        <td>
+                            <strong th:text="${item.product.name}"></strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary" th:text="${item.product.category}"></span>
+                        </td>
+                        <td th:text="${#numbers.formatDecimal(item.delivery.purchaseCost, 0, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                        <td th:text="${#numbers.formatDecimal(item.product.price, 0, 'COMMA', 2, 'POINT') + ' ₽'}"></td>
+                        <td>
+                                    <span th:class="${item.quantity > 0 ? 'badge bg-success' : 'badge bg-danger'}"
+                                          th:text="${item.quantity}">
+                                    </span>
+                        </td>
+                        <td>
+                            <small>Поставка #<span th:text="${item.delivery.deliveryId}"></span></small><br>
+                            <small th:text="${#temporals.format(item.delivery.deliveryDate, 'dd.MM.yyyy')}"></small>
+                        </td>
+                        <td th:text="${#temporals.format(item.createdAt, 'dd.MM.yyyy')}"></td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a th:href="@{/warehouse/edit/{id}(id=${item.recordId})}"
+                                   class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/warehouse/delete/{id}(id=${item.recordId})}"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Удалить запись со склада?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${warehouseItems.empty}">
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="fas fa-warehouse fa-2x mb-2"></i><br>
+                            Склад пуст
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

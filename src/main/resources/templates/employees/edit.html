@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать сотрудника - Автосалон</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .form-required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        .employee-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-car"></i> Автосалон
+        </a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Информация о сотруднике -->
+            <div class="employee-info">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 th:text="${employee.fullName}"></h4>
+                        <p class="mb-1">
+                            <i class="fas fa-id-card"></i> ID:
+                            <strong th:text="${employee.employeeId}"></strong>
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-phone"></i>
+                            <span th:text="${employee.phoneNumber}"></span>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-calendar-alt"></i> В компании с:
+                            <span th:text="${#temporals.format(employee.createdAt, 'dd.MM.yyyy')}"></span>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <i class="fas fa-user-tie fa-4x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit"></i> Редактировать данные сотрудника
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/employees/edit/{id}(id=${employee.employeeId})}"
+                          th:object="${employee}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label form-required">ФИО сотрудника</label>
+                            <input type="text" class="form-control" id="fullName"
+                                   th:field="*{fullName}" required>
+                            <div th:if="${#fields.hasErrors('fullName')}" class="text-danger">
+                                <span th:errors="*{fullName}"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label form-required">Номер телефона</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                <input type="tel" class="form-control" id="phoneNumber"
+                                       th:field="*{phoneNumber}"
+                                       pattern="^\+7-\d{3}-\d{3}-\d{2}-\d{2}$"
+                                       required>
+                            </div>
+                            <div class="form-text">Формат: +7-XXX-XXX-XX-XX</div>
+                            <div th:if="${#fields.hasErrors('phoneNumber')}" class="text-danger">
+                                <span th:errors="*{phoneNumber}"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="birthDate" class="form-label form-required">Дата рождения</label>
+                            <input type="date" class="form-control" id="birthDate"
+                                   th:field="*{birthDate}"
+                                   th:max="${#temporals.format(#temporals.createNow().minusYears(18), 'yyyy-MM-dd')}"
+                                   required>
+                            <div class="form-text">
+                                Текущий возраст:
+                                <span th:text="${#temporals.format(#temporals.createNow().minusYears(#temporals.year(employee.birthDate)).getYears())} + ' лет'"></span>
+                            </div>
+                            <div th:if="${#fields.hasErrors('birthDate')}" class="text-danger">
+                                <span th:errors="*{birthDate}"></span>
+                            </div>
+                        </div>
+
+                        <!-- Статистика сотрудника -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-chart-bar"></i> Статистика сотрудника</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-2">
+                                            <div class="text-primary fw-bold" th:text="${employeeStats?.totalOrders ?? 0}">0</div>
+                                            <small class="text-muted">Всего заказов</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-2">
+                                            <div class="text-success fw-bold" th:text="${employeeStats?.completedOrders ?? 0}">0</div>
+                                            <small class="text-muted">Завершенных</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border rounded p-2">
+                                            <div class="text-warning fw-bold" th:text="${employeeStats?.pendingOrders ?? 0}">0</div>
+                                            <small class="text-muted">В процессе</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Сохранить изменения
+                            </button>
+                            <a th:href="@{/employees}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Отмена
+                            </a>
+                            <a th:href="@{/employees/delete/{id}(id=${employee.employeeId})}"
+                               class="btn btn-danger"
+                               onclick="return confirm('Вы уверены, что хотите удалить сотрудника ' + document.getElementById('fullName').value + '?')">
+                                <i class="fas fa-trash"></i> Удалить
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
